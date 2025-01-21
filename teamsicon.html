@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teamsスタイルアイコンメーカー</title>
+  <style>
+    @font-face {
+      font-family: "Unbounded";
+      src: url("./NotoSansJP-Thin.ttf") format("truetype");
+    }
+
+    body, .container, .preview, input, select, button {
+      font-family: "Unbounded", sans-serif;
+    }
+
+    body {
+      font-family: "Unbounded", Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background-color: #f3f3f3;
+    }
+
+    .container {
+      width: 400px;
+      text-align: center;
+      background: white;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .preview {
+      width: 150px;
+      height: 150px;
+      margin: 0 auto 20px;
+      background-color: #0078d4;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 50px;
+      font-weight: normal; /* フォントを細くする */
+      text-transform: uppercase;
+      border-radius: 50%;
+    }
+
+    input[type="text"], select, button {
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin-bottom: 15px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #0078d4;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #005a9e;
+    }
+
+    canvas {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Teamsスタイルアイコンメーカー</h1>
+
+    <div class="preview" id="iconPreview">A</div>
+
+    <input type="text" id="nameInput" placeholder="名前を入力 (例: 太郎)" maxlength="4">
+    <select id="bgColorInput">
+      <option value="#0078d4" style="background-color: #0078d4; color: white;">青</option>
+      <option value="#f44336" style="background-color: #f44336; color: white;">赤</option>
+      <option value="#4caf50" style="background-color: #4caf50; color: white;">緑</option>
+      <option value="#ff9800" style="background-color: #ff9800; color: white;">オレンジ</option>
+      <option value="#9c27b0" style="background-color: #9c27b0; color: white;">紫</option>
+    </select>
+    <button onclick="updatePreview()">プレビュー更新</button>
+    <button onclick="downloadIcon()">PNGとして保存</button>
+
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <script>
+    const preview = document.getElementById("iconPreview");
+
+    function updatePreview() {
+      const name = document.getElementById("nameInput").value.trim();
+      const bgColor = document.getElementById("bgColorInput").value;
+
+      if (!name) {
+        alert("名前を入力してください！");
+        return;
+      }
+
+      // 背景色を変更
+      preview.style.backgroundColor = bgColor;
+
+      // テキストサイズ調整
+      preview.style.fontSize = name.length <= 2 ? "50px" : "40px"; // 2文字以下とそれ以上で異なるサイズ
+      preview.style.fontWeight = "normal"; // プレビューのフォントを細く設定
+    //  preview.textContent = name.length <= 2 ? name : name.slice(0, 2) + "<br>" + name.slice(2);
+
+      // 改行を反映させる
+      let displayText = name;
+      if (name.length > 3) {
+        displayText = name.slice(0, 2) + "\n" + name.slice(2);
+      }
+
+      // 改行を反映するためにtextContentではなくinnerTextを使用
+      preview.innerText = displayText; // 改行が反映される
+
+    }
+
+    function downloadIcon() {
+      const name = document.getElementById("nameInput").value.trim();
+      const bgColor = document.getElementById("bgColorInput").value;
+
+      if (!name) {
+        alert("名前を入力してください！");
+        return;
+      }
+
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const size = 500;
+
+      canvas.width = size;
+      canvas.height = size;
+
+      // 背景を描画
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, size, size);
+
+      // 名前を描画
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `${name.length <= 2 ? "100" : "100"} ${name.length <= 2 ? 200 : 150}px "Unbounded", Arial, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      const text = name.length > 3 ? [name.slice(0, 2), name.slice(2)] : [name];
+      const lineHeight = 160; // 行間を調整
+
+      if (text.length === 2) {
+        // 2行の場合は、上に1行目、下に2行目
+        ctx.fillText(text[0], size / 2, size / 2 - lineHeight / 2);
+        ctx.fillText(text[1], size / 2, size / 2 + lineHeight / 2);
+      } else {
+        // 1行の場合は中央に描画
+        ctx.fillText(text[0], size / 2, size / 2);
+      }
+
+      // PNG出力
+      const link = document.createElement("a");
+      link.download = "Teams-Icon.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }
+  </script>
+</body>
+</html>
