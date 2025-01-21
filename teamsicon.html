@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Teamsスタイルアイコンメーカー</title>
+  <title>アイコンメーカー</title>
   <style>
     @font-face {
       font-family: "Unbounded";
@@ -44,13 +44,13 @@
       width: 150px;
       height: 150px;
       margin: 0 auto 20px;
-      background-color: #0078d4;
-      color: #ffffff;
+      background-color: rgb(205, 218, 234);
+      color: rgb(15, 49, 86);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 50px;
-      font-weight: normal; /* フォントを細くする */
+      font-weight: 500; /* フォントを少し太くする */
       text-transform: uppercase;
       border-radius: 50%;
     }
@@ -75,6 +75,15 @@
       background-color: #005a9e;
     }
 
+    .color-button {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      margin: 5px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
     canvas {
       display: none;
     }
@@ -82,18 +91,22 @@
 </head>
 <body>
   <div class="container">
-    <h1>Teamsスタイルアイコンメーカー</h1>
+    <h1>アイコンメーカー</h1>
 
-    <div class="preview" id="iconPreview">A</div>
+    <div class="preview" id="iconPreview">名前</div>
 
-    <input type="text" id="nameInput" placeholder="名前を入力 (例: 太郎)" maxlength="4">
-    <select id="bgColorInput">
-      <option value="#0078d4" style="background-color: #0078d4; color: white;">青</option>
-      <option value="#f44336" style="background-color: #f44336; color: white;">赤</option>
-      <option value="#4caf50" style="background-color: #4caf50; color: white;">緑</option>
-      <option value="#ff9800" style="background-color: #ff9800; color: white;">オレンジ</option>
-      <option value="#9c27b0" style="background-color: #9c27b0; color: white;">紫</option>
-    </select>
+    <input type="text" id="nameInput" placeholder="名前を入力 (例: 中村)" maxlength="4">
+    
+    <div>
+      <button class="color-button" style="background-color: rgb(205, 218, 234);" onclick="setBgColor('rgb(205, 218, 234)')"></button>
+      <button class="color-button" style="background-color: rgb(245, 212, 223);" onclick="setBgColor('rgb(245, 212, 223)')"></button>
+      <button class="color-button" style="background-color: rgb(244, 215, 217);" onclick="setBgColor('rgb(244, 215, 217)')"></button>
+      <button class="color-button" style="background-color: rgb(226, 222, 237);" onclick="setBgColor('rgb(226, 222, 237)')"></button>
+      <button class="color-button" style="background-color: rgb(246, 232, 203);" onclick="setBgColor('rgb(246, 232, 203)')"></button>
+      <button class="color-button" style="background-color: rgb(209, 235, 222);" onclick="setBgColor('rgb(209, 235, 222)')"></button>
+      <button class="color-button" style="background-color: rgb(232, 221, 217);" onclick="setBgColor('rgb(232, 221, 217)')"></button>
+    </div>
+
     <button onclick="updatePreview()">プレビュー更新</button>
     <button onclick="downloadIcon()">PNGとして保存</button>
 
@@ -101,11 +114,24 @@
   </div>
 
   <script>
+    const FONTBOLD = "500";
+
+
+    let currentBgColor = "rgb(205, 218, 234)"; // 初期背景色
+    const textColor = "rgb(15, 49, 86)"; // 名前の色
+
+    function setBgColor(color) {
+      currentBgColor = color;
+      document.querySelectorAll(".color-button").forEach(button => {
+        button.style.border = button.style.backgroundColor === color ? "2px solid #000" : "none";
+      });
+      updatePreview(); // プレビュー更新
+    }
+
     const preview = document.getElementById("iconPreview");
 
     function updatePreview() {
       const name = document.getElementById("nameInput").value.trim();
-      const bgColor = document.getElementById("bgColorInput").value;
 
       if (!name) {
         alert("名前を入力してください！");
@@ -113,12 +139,16 @@
       }
 
       // 背景色を変更
-      preview.style.backgroundColor = bgColor;
+      preview.style.backgroundColor = currentBgColor;
+
+      // テキスト色を設定
+      preview.style.color = textColor;
+
+      // フォントの太さを少し太くする（500は少し太い程度）
+      preview.style.fontWeight = FONTBOLD; 
 
       // テキストサイズ調整
-      preview.style.fontSize = name.length <= 2 ? "50px" : "40px"; // 2文字以下とそれ以上で異なるサイズ
-      preview.style.fontWeight = "normal"; // プレビューのフォントを細く設定
-    //  preview.textContent = name.length <= 2 ? name : name.slice(0, 2) + "<br>" + name.slice(2);
+      preview.style.fontSize = name.length <= 2 ? "50px" : "40px"; 
 
       // 改行を反映させる
       let displayText = name;
@@ -128,12 +158,10 @@
 
       // 改行を反映するためにtextContentではなくinnerTextを使用
       preview.innerText = displayText; // 改行が反映される
-
     }
 
     function downloadIcon() {
       const name = document.getElementById("nameInput").value.trim();
-      const bgColor = document.getElementById("bgColorInput").value;
 
       if (!name) {
         alert("名前を入力してください！");
@@ -148,12 +176,16 @@
       canvas.height = size;
 
       // 背景を描画
-      ctx.fillStyle = bgColor;
+      ctx.fillStyle = currentBgColor;
       ctx.fillRect(0, 0, size, size);
 
-      // 名前を描画
-      ctx.fillStyle = "#ffffff";
-      ctx.font = `${name.length <= 2 ? "100" : "100"} ${name.length <= 2 ? 200 : 150}px "Unbounded", Arial, sans-serif`;
+      // 名前の色を設定
+      ctx.fillStyle = textColor;
+
+      // フォントの太さを少し太くする（500は少し太い程度）
+      ctx.font = `${name.length <= 2 ? FONTBOLD : FONTBOLD} ${name.length <= 2 ? 200 : 150}px "Unbounded", Arial, sans-serif`;
+//      ctx.fontWeight = "900"; // ここでもフォントを太く設定
+
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
 
